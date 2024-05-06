@@ -1,11 +1,13 @@
 #!make -f
 
-CXX=clang
+CXX=clang++
 CXXFLAGS=-std=c++11 -Werror -Wsign-conversion
 VALGRIND_FLAGS=-v --leak-check=full --show-leak-kinds=all  --error-exitcode=99
 
-SOURCES=Graph.cpp Algorithm.cpp TestCounter.cpp Test.cpp
+SOURCES=Graph.cpp Algorithms.cpp
+TEST_SOURCES =Graph.cpp Algorithms.cpp TestCounter.cpp Test.cpp
 OBJECTS=$(subst .cpp,.o,$(SOURCES))
+TEST_OBJECTS =$(subst .cpp,.o,$(TEST_SOURCES))
 
 run: demo
 	./$^
@@ -13,7 +15,7 @@ run: demo
 demo: Demo.o $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $^ -o demo
 
-test: TestCounter.o Test.o $(OBJECTS)
+test: TestCounter.o Test.o $(TEST_OBJECTS)
 	$(CXX) $(CXXFLAGS) $^ -o test
 
 tidy:
