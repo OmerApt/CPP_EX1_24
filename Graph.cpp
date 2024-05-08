@@ -42,12 +42,18 @@ namespace ariel
     void Graph::setedge(unsigned int a, unsigned int b, int value)
     {
         // need to check if parameters in range for safer code
+        if (a >= nodes_num || b >= nodes_num) {
+                throw std::out_of_range("Node index out of range.");
+            }
         this->actual_graph[this->nodes_num * a + b] = value;
     }
 
     int Graph::getedge(unsigned int row, unsigned int collumn)
     {
         // need to check if parameters in range for safer code
+        if (row >= nodes_num || col >= nodes_num) {
+                throw std::out_of_range("Node index out of range.");
+            }
         return this->actual_graph[this->nodes_num * row + collumn];
     }
 
