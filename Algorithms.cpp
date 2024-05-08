@@ -1,3 +1,4 @@
+// 206766677 Omer.Apter@msmail.ariel.ac.il
 #include <vector>
 #include <stdio.h>
 #include <stdexcept>
@@ -17,12 +18,15 @@ using namespace std;
 using ariel::Graph;
 namespace ariel
 {
-    int run_bellman_ford(Graph& g, unsigned int start, int d[], unsigned int prev[]);
-    void relax(Graph& g, unsigned int edgefrom, unsigned int edgeto, int d[], unsigned int prev[]);
-    string dfsCircleFind(Graph& g);
-    unsigned int dfsCircleVisit(Graph& g, unsigned int u, unsigned int color[], unsigned int prev[]);
+    int run_bellman_ford(Graph &g, unsigned int start, int d[], unsigned int prev[]);
+    void relax(Graph &g, unsigned int edgefrom, unsigned int edgeto, int d[], unsigned int prev[]);
+    string dfsCircleFind(Graph &g);
+    unsigned int dfsCircleVisit(Graph &g, unsigned int u, unsigned int color[], unsigned int prev[]);
 
-    bool Algorithms::isConnected(Graph& g)
+    // checks if Graph g is a connected Graph by looking at g as an undirectional Graph.
+    // using a bfs on g and grouping all the found nodes (use array group the starts with each index[node] as its own group).
+    // checking if all nodes are in the same group
+    bool Algorithms::isConnected(Graph &g)
     {
         unsigned int *group = (unsigned int *)malloc(g.get_num_of_nodes() * sizeof(int));
         for (unsigned int i = 0; i < g.get_num_of_nodes(); i++)
@@ -33,7 +37,7 @@ namespace ariel
         deque<unsigned int> q = deque<unsigned int>();
         q.push_front(0);
 
-        while (q.size() > 0)
+        while (!q.empty())
         {
             // queue pop
             unsigned int u = q.back();
@@ -42,7 +46,7 @@ namespace ariel
             for (unsigned int v = 0; v < g.get_num_of_nodes(); v++)
             {
                 // v in adj[u] when looking at g as an undirected
-                if (v != u && g.getedge(u, v) != 0 || g.getedge(v, u) != 0)
+                if (v != u && group[v] != group[u] && (g.getedge(u, v) != 0 || g.getedge(v, u) != 0))
                 {
                     group[v] = group[u];
                     // queue push
@@ -62,18 +66,19 @@ namespace ariel
         free(group);
         return true;
     }
-    // run bellman ford and check the path from end to start while building the string
-    string Algorithms::shortestPath(ariel::Graph& g, int start, int end)
+    // run bellman ford and check the path from end to start while building a string representetion of the shortest path to return. will return "-1" if there is no path
+    string Algorithms::shortestPath(ariel::Graph &g, int start, int end)
     {
         if (start == end)
             return to_string(start);
 
         // asumming success for malloc
-        int *d = (int *)malloc(g.get_num_of_nodes() * sizeof(int));
-        unsigned int *prev = (unsigned int *)malloc(g.get_num_of_nodes() * sizeof(int));
+        int *d = (int *)malloc(g.get_num_of_nodes() * sizeof(int));                      // represents lowest boundry.
+        unsigned int *prev = (unsigned int *)malloc(g.get_num_of_nodes() * sizeof(int)); // represents the parent node in the shortest path from node start.
 
         int res = run_bellman_ford(g, 0, d, prev);
 
+        // print the shortest (lowest weight)
         unsigned int v = (unsigned int)end;
         string out = to_string(end);
         while (v != start)
@@ -92,14 +97,17 @@ namespace ariel
         }
         return out;
     }
-    bool Algorithms::isContainsCycle(ariel::Graph& g)
+    // if g contains a cycle (is not a DAG) returns true and prints one cycle course in graph g.
+    // if g is DAG returns false;
+    bool Algorithms::isContainsCycle(ariel::Graph &g)
     {
         string ans = dfsCircleFind(g);
-        cout << ans<<std::endl;
-        return ans=="0"?false:true;
+        if (ans != "0")
+            cout << ans << std::endl;
+        return ans == "0" ? false : true;
     }
-    // using bfs and answer from tirgul 4 of algo 1
-    string Algorithms::isBipartite(ariel::Graph& g)
+    // using bfs and answer from tirgul 4 of algo 1 if Graph g is Bipartite return a string showing the 2 groups else return "0".
+    string Algorithms::isBipartite(ariel::Graph &g)
     {
         int *color = (int *)malloc(g.get_num_of_nodes() * sizeof(int));
         for (int i = 0; i < g.get_num_of_nodes(); i++)
@@ -109,8 +117,9 @@ namespace ariel
         // implement of queue
         deque<unsigned int> q = deque<unsigned int>();
         q.push_front(0);
+        color[0] = BLUE;
 
-        while (q.size() > 0)
+        while (!q.empty())
         {
             // queue pop
             unsigned int u = q.back();
@@ -119,7 +128,7 @@ namespace ariel
             for (unsigned int v = 0; v < g.get_num_of_nodes(); v++)
             {
                 // v in adj[u] when looking at g as an undirected
-                if (v != u && g.getedge(u, v) != 0 || g.getedge(v, u) != 0)
+                if (v != u && (g.getedge(u, v) != 0 || g.getedge(v, u) != 0))
                 {
                     if (color[u] == color[v])
                     {
@@ -131,39 +140,41 @@ namespace ariel
                         if (color[v] == WHITE)
                         {
                             color[v] = (color[u] == BLUE) ? RED : BLUE;
+                            // queue push
+                            q.push_front(v);
                         }
                     }
-                    // queue push
-                    q.push_front(v);
                 };
             }
         }
-        string out = "A: " + to_string(0);
-        for (unsigned int i = 0; i < g.get_num_of_nodes(); i++)
+        string out = "The graph is bipartite: A={" + to_string(0);
+        for (unsigned int i = 1; i < g.get_num_of_nodes(); i++)
         {
             if (color[i] == color[0])
-                out += "," + to_string(i);
+                out += ", " + to_string(i);
         }
-        out += "     B: ";
+        out += "}, B={";
         bool first = true;
-        for (unsigned int i = 0; i < g.get_num_of_nodes(); i++)
+        for (unsigned int i = 1; i < g.get_num_of_nodes(); i++)
         {
             if (color[i] != color[0])
             {
                 if (first)
                 {
                     out += to_string(i);
+                    first = false;
                 }
                 else
                 {
-                    out += "," + to_string(i);
+                    out += ", " + to_string(i);
                 }
             }
         }
+        out+="}";
         return out;
     }
     // return 1 if there is a negetive cycle else 0
-    int Algorithms::negativeCycle(ariel::Graph& g)
+    int Algorithms::negativeCycle(ariel::Graph &g)
     {
         // asumming success for malloc
         int *d = (int *)malloc(g.get_num_of_nodes() * sizeof(int));
@@ -175,7 +186,7 @@ namespace ariel
         return (res == -1) ? 1 : 0;
     }
     // return -1 if negative cycle else return 0
-    int run_bellman_ford(Graph& g, unsigned int start, int d[], unsigned int prev[])
+    int run_bellman_ford(Graph &g, unsigned int start, int d[], unsigned int prev[])
     {
         for (unsigned int i = 0; i < g.get_num_of_nodes(); i++)
         {
@@ -210,7 +221,7 @@ namespace ariel
         }
         return 0;
     }
-    void relax(Graph& g, unsigned int edgefrom, unsigned int edgeto, int d[], unsigned int prev[])
+    void relax(Graph &g, unsigned int edgefrom, unsigned int edgeto, int d[], unsigned int prev[])
     {
         if (d[edgeto] > d[edgefrom] + g.getedge(edgefrom, edgeto))
         {
@@ -220,14 +231,16 @@ namespace ariel
     }
 
     // colors w=0, g=1 b=2
-    string dfsCircleFind(Graph& g)
+    // uses dfs on graph g, if on dfs we find a back edge (GREY node in color array) we return the cycle course from the found node else return "0"
+    //
+    string dfsCircleFind(Graph &g)
     {
-        unsigned int *color = (unsigned int *)malloc(g.get_num_of_nodes() * sizeof(int));
-        unsigned int *prev = (unsigned int *)malloc(g.get_num_of_nodes() * sizeof(int));
+        unsigned int *color = (unsigned int *)malloc(g.get_num_of_nodes() * sizeof(int)); // represents the color in dfs run
+        unsigned int *prev = (unsigned int *)malloc(g.get_num_of_nodes() * sizeof(int));  // represents the parent node in shortest path from node 0
         for (unsigned int i = 0; i < g.get_num_of_nodes(); i++)
         {
             color[i] = WHITE;
-            prev[i] =  g.get_num_of_nodes();
+            prev[i] = g.get_num_of_nodes();
         }
         unsigned int cyclestarter = g.get_num_of_nodes();
         for (unsigned int v = 0; v < g.get_num_of_nodes(); v++)
@@ -261,7 +274,9 @@ namespace ariel
         free(prev);
         return s;
     }
-    unsigned int dfsCircleVisit(Graph& g, unsigned int u, unsigned int color[], unsigned int prev[])
+    // the dfs recursive function, runs until reaching a leaf node and returns the numbers of nodes
+    //  or until it finds a back edge (GREY node) and returns the GREY node(where a cycle starts and ends).
+    unsigned int dfsCircleVisit(Graph &g, unsigned int u, unsigned int color[], unsigned int prev[])
     {
         color[u] = GREY;
         for (unsigned int v = 0; v < g.get_num_of_nodes(); v++)
@@ -275,7 +290,7 @@ namespace ariel
                 }
                 else
                 {
-                    if (color[v] == GREY)
+                    if (color[v] == GREY && v != prev[u])
                     {
                         prev[v] = u;
                         return v;

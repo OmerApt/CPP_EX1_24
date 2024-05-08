@@ -1,3 +1,4 @@
+// 206766677 Omer.Apter@msmail.ariel.ac.il
 #include <vector>
 #include <iostream>
 #include <stdio.h>
@@ -9,25 +10,30 @@ namespace ariel
 {
     void Graph::loadGraph(vector<vector<int>> g)
     {
-       unsigned int rows = g.size();
-        for (unsigned int i = 0; i < rows; i++)
+        unsigned int nodes = g.size();
+        for (unsigned int i = 0; i < nodes; i++)
         {
-            if (rows != g[i].size())
+            if (nodes != g[i].size())
             {
-                throw std::out_of_range{"Invalid graph: The graph is not a square matrix."};
+                throw std::invalid_argument{"Invalid graph: The graph is not a square matrix."};
             }
         }
-        this->nodes_num = rows;
-        this->actual_graph = (int *)malloc(rows * rows * sizeof(int));
+        if (this->actual_graph != nullptr)
+        {
+            free(this->actual_graph);
+        }
+        this->num_edges = 0;
+        this->nodes_num = nodes;
+        this->actual_graph = (int *)malloc(nodes * nodes * sizeof(int));
         if (this->actual_graph != NULL)
         {
-            for (unsigned int r = 0; r < rows; r++)
+            for (unsigned int row = 0; row < nodes; row++)
             {
-                for (unsigned int c = 0; c < rows; c++)
+                for (unsigned int col = 0; col < nodes; col++)
                 {
-                    int edge = g[r].at(c);
+                    int edge = g[row].at(col);
                     this->num_edges += (edge != 0) ? 1 : 0;
-                    this->setedge(r, c, edge);
+                    this->setedge(row, col, edge);
                 }
             }
         }
@@ -47,12 +53,12 @@ namespace ariel
 
     void Graph::printGraph()
     {
-        cout << "Graph with " << this->nodes_num << " vertices and " << this->num_edges << " edges";
+        cout << "Graph with " << this->nodes_num << " vertices and " << this->num_edges << " edges" << std::endl;
     }
 
     Graph::~Graph()
     {
-        if (this->actual_graph != 0)
+        if (this->graph_loaded == true)
             free(this->actual_graph);
     }
 }

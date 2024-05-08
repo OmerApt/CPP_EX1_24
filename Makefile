@@ -1,21 +1,24 @@
 #!make -f
 
-CXX=clang++
-CXXFLAGS=-std=c++11 -Werror -Wsign-conversion
+CXX=g++
+CXXFLAGS=-std=c++11 -g -Werror -Wsign-conversion
 VALGRIND_FLAGS=-v --leak-check=full --show-leak-kinds=all  --error-exitcode=99
 
 SOURCES=Graph.cpp Algorithms.cpp
-TEST_SOURCES =Graph.cpp Algorithms.cpp TestCounter.cpp Test.cpp
+TESTSOURCES=Test.cpp TestCounter.cpp
 OBJECTS=$(subst .cpp,.o,$(SOURCES))
-TEST_OBJECTS =$(subst .cpp,.o,$(TEST_SOURCES))
+OBJECTSTEST=$(subst .cpp,.o,$(TESTSOURCES))
 
 run: demo
+	./$^
+
+run-test: test
 	./$^
 
 demo: Demo.o $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $^ -o demo
 
-test: TestCounter.o Test.o $(TEST_OBJECTS)
+test: $(OBJECTSTEST) $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $^ -o test
 
 tidy:
@@ -27,6 +30,8 @@ valgrind: demo test
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) --compile $< -o $@
+
+phony: run demo test run-test
 
 clean:
 	rm -f *.o demo test

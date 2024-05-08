@@ -60,5 +60,25 @@
         "streambuf": "cpp",
         "thread": "cpp",
         "typeinfo": "cpp"
-    }
+    },
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/home/omerapt/systems_programming/sp2/CPP_EX1_24",
+            "binaryPath": "/home/omerapt/systems_programming/sp2/CPP_EX1_24/demo",
+            "binaryArgs": []
+        },
+        {
+            "cwd": "/home/omerapt/systems_programming/sp2/CPP_EX1_24",
+            "binaryPath": "/home/omerapt/systems_programming/sp2/CPP_EX1_24/test",
+            "binaryArgs": []
+        }
+    ],
+    "makefile.dryrunSwitches": [
+        "--always-make",
+        "--keep-going",
+        "--print-directory"
+    ],
+    "makefile.phonyOnlyTargets": false,
+    "makefile.makePath": "make",
+    "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools"
 }

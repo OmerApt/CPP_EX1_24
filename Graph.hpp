@@ -1,3 +1,4 @@
+//206766677 Omer.Apter@msmail.ariel.ac.il
 #include <vector>
 #pragma once
 
@@ -12,15 +13,18 @@ namespace ariel
         unsigned int num_edges;
         // use 1d array to represent matrice
         int *actual_graph;
+        //if have loaded graph
+        bool graph_loaded;
         // for initilazing graph
         void setedge(unsigned int a, unsigned int b, int value);
 
     public:
         Graph()
         {
-            this->actual_graph = 0;
+            this->actual_graph = nullptr;
             this->nodes_num = 0;
             this->num_edges = 0;
+            this->graph_loaded = 0;
         };
         ~Graph();
         void loadGraph(std::vector<std::vector<int>> g);
