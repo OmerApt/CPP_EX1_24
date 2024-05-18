@@ -51,7 +51,7 @@ namespace ariel
     int Graph::getedge(unsigned int row, unsigned int collumn)
     {
         // need to check if parameters in range for safer code
-        if (row >= nodes_num || col >= nodes_num) {
+        if (row >= nodes_num || collumn >= nodes_num) {
                 throw std::out_of_range("Node index out of range.");
             }
         return this->actual_graph[this->nodes_num * row + collumn];
